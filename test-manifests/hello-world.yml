@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hello-world
+data:
+  main.py: |
+    import time
+    print("Hello world!")
+    time.sleep(10)
+    print("Goodbye world!")
+---
+apiVersion: wftech.eu/v1
+kind: PythonApp
+metadata:
+  name: hello-world
+spec:
+    source: hello-world
+    imageName: docker.io/python:3.10-slim
+    timeLimitSeconds: 30

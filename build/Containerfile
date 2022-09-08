@@ -1,0 +1,26 @@
+FROM python:3.10-slim
+
+# Note: -slim images do not contain another version of Python as /usr/bin/python,
+# hence no collisions.
+
+LABEL maintainer="veros@wftech.eu"
+LABEL version="0.1"
+
+ENV PYTHONIOENCODING utf-8
+ENV PYTHONUNBUFFERED 1
+ARG BASE_DIR=/home/kopf
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN useradd -m kopf -u 1111
+
+USER kopf
+
+ADD [ "build/requirements.txt", "${BASE_DIR}/requirements.txt" ]
+RUN python3 -mvenv ${BASE_DIR}/__venv__
+RUN ${BASE_DIR}/__venv__/bin/pip install -r ${BASE_DIR}/requirements.txt
+COPY python_operator/ ${BASE_DIR}/python_operator/
+COPY main.py ${BASE_DIR}
+
+WORKDIR ${BASE_DIR}
+ENV OPERATOR_HOME=${BASE_DIR}
+CMD ./__venv__/bin/kopf run main.py --all-namespaces

@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: '{{ app_name }}-'
+  namespace: '{{ namespace }}'
+  labels: {}
+  annotations: {}
+spec:
+  completions: 1
+  backoffLimit: 1 # one restart is allowed
+  activeDeadlineSeconds: {{ time_limit_seconds + 60|int }}    # deadline
+  ttlSecondsAfterFinished: 7200 # keep job 2hours in the ApiServer
+  template:
+    metadata:
+      labels: {}
+      annotations: {}
+    spec:
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: python
+          image: '{{ image_name }}'
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: '{{ memory_limit_mb }}Mi'
+            limits:
+              memory: '{{ memory_limit_mb }}Mi'
+          command: ["/usr/bin/env", "python", "/app/main.py"]
+          env:
+          - name: KOPF
+            value: '1'
+          - name: PYTHONUNBUFFERED
+            value: '1'
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+              readOnly: false
+            - mountPath: /app
+              name: app-source
+              readOnly: true
+      volumes:
+        - name: 'tmp'
+          emptyDir: {}
+        - name: 'app-source'
+          configMap:
+            name: '{{ source }}'
+            defaultMode: 0700
+
+
