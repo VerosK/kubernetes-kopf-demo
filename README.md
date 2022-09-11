@@ -15,22 +15,30 @@ for the Pycon.sk 2022 talk.
 
 ## How to run
 
+* Bring your own Kubernetes cluster. I used `minikube` for this demo.
+
 * Create PythonApp CRD
 
-      make crd
+      kubectl apply -f deployment/crds.yaml
+
 
 * run the operator locally (in a separate background terminal)
 
-      make run
+      kopf run main.py --verbose
 
-* create PythonApplication object and watch 
- Job object being created
+  This step may require to create and use Python virtualenv. 
 
-      make start-app
 
+* create PythonApplication object and watch Job resource being created.
+
+      kubectl apply -f test-manifests/hello-world.yml -n default
+
+* drop PythonApplication object.
+
+      kubectl delete -f test-manifests/hello-world.yml -n default
 
 ### License
 
-CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
+CC0 1.0 Universal (CC0 1.0). Public Domain Dedication.
 
 No warranty. Use at your own risk.  It it breaks, you should keep both pieces.
